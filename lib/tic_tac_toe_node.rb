@@ -57,37 +57,3 @@ class TicTacToeNode
     children
   end
 end
-
-
-class SuperComputerPlayer < ComputerPlayer
-  def move(game, mark)
-    current_node = TicTacToeNode.new(game.board, mark)
-
-    current_node.children.each do |child|
-      return child.prev_move_pos if child.winning_node?(mark)
-    end
-
-    current_node.children.shuffle.each do |child|
-      return child.prev_move_pos unless child.losing_node?(mark)
-    end
-
-    raise "No moves, something went wrong!"
-  end
-end
-
-if __FILE__ == $PROGRAM_NAME
-  # node = TicTacToeNode.new(Board.new, :x)
-  #
-  # # node.children.each do |child|
-  # #   print child.board.rows
-  # #   puts " #{child.next_mover_mark}"
-  # # end
-  #
-  # puts "Start is a winning node? #{node.winning_node?(:x)}"
-  # puts "Start is a losing node? #{node.losing_node?(:x)}"
-  puts "Play the dumb computer!"
-  hp = HumanPlayer.new("Ned")
-  cp = SuperComputerPlayer.new
-
-  TicTacToe.new(cp, hp).run
-end
