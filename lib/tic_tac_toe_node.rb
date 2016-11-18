@@ -1,7 +1,7 @@
 require_relative 'tic_tac_toe'
 
 class TicTacToeNode
-  attr_reader :board, :next_mover_mark
+  attr_reader :board, :next_mover_mark, :prev_move_pos
 
   def initialize(board, next_mover_mark, prev_move_pos = nil)
     @board = board
@@ -16,7 +16,8 @@ class TicTacToeNode
   def losing_node?(evaluator)
     ##Base Case
     return true if board.winner == other_mark(evaluator)
-    return false if board.tied? || board.winner == evaluator
+    return false if board.winner == evaluator || board.tied?
+
 
     if next_mover_mark == evaluator
       children.all? { |child| child.losing_node?(evaluator) }
@@ -57,14 +58,36 @@ class TicTacToeNode
   end
 end
 
+
+class SuperComputerPlayer < ComputerPlayer
+  def move(game, mark)
+    current_node = TicTacToeNode.new(game.board, mark)
+
+    current_node.children.each do |child|
+      return child.prev_move_pos if child.winning_node?(mark)
+    end
+
+    current_node.children.shuffle.each do |child|
+      return child.prev_move_pos unless child.losing_node?(mark)
+    end
+
+    raise "No moves, something went wrong!"
+  end
+end
+
 if __FILE__ == $PROGRAM_NAME
-  node = TicTacToeNode.new(Board.new, :x)
+  # node = TicTacToeNode.new(Board.new, :x)
+  #
+  # # node.children.each do |child|
+  # #   print child.board.rows
+  # #   puts " #{child.next_mover_mark}"
+  # # end
+  #
+  # puts "Start is a winning node? #{node.winning_node?(:x)}"
+  # puts "Start is a losing node? #{node.losing_node?(:x)}"
+  puts "Play the dumb computer!"
+  hp = HumanPlayer.new("Ned")
+  cp = SuperComputerPlayer.new
 
-  # node.children.each do |child|
-  #   print child.board.rows
-  #   puts " #{child.next_mover_mark}"
-  # end
-
-  puts "Start is a winning node? #{node.winning_node?(:x)}"
-  puts "Start is a losing node? #{node.losing_node?(:x)}"
+  TicTacToe.new(cp, hp).run
 end
